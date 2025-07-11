@@ -4,17 +4,19 @@ This document describes the tools exposed by the GitHub Copilot MCP server. Each
 
 ## copilot_complete
 
-Generates code completions from GitHub Copilot based on the provided prompt.
+Generates code completions from GitHub Copilot based on the provided code context.
 
 ### Input Schema
 ```json
 {
   "type": "object",
   "properties": {
-    "prompt": { "type": "string", "description": "Code snippet or question" },
-    "language": { "type": "string", "description": "Programming language", "default": "" }
+    "code": { "type": "string", "description": "Current code context" },
+    "language": { "type": "string", "description": "Programming language" },
+    "cursor_position": { "type": "number", "description": "Cursor position in code" },
+    "max_completions": { "type": "number", "default": 3 }
   },
-  "required": ["prompt"]
+  "required": ["code", "language"]
 }
 ```
 
@@ -38,8 +40,12 @@ Provides automated code review comments for a given file or snippet.
 {
   "type": "object",
   "properties": {
-    "code": { "type": "string", "description": "Source code to review" },
-    "language": { "type": "string", "description": "Programming language" }
+    "code": { "type": "string", "description": "Code to review" },
+    "context": { "type": "string", "description": "Additional context" },
+    "focus_areas": {
+      "type": "array",
+      "items": { "enum": ["security", "performance", "readability", "bugs"] }
+    }
   },
   "required": ["code"]
 }
@@ -69,7 +75,9 @@ Explains what a piece of code does in plain language.
 {
   "type": "object",
   "properties": {
-    "code": { "type": "string", "description": "Code to explain" }
+    "code": { "type": "string", "description": "Code to explain" },
+    "detail_level": { "enum": ["brief", "detailed", "comprehensive"] },
+    "include_examples": { "type": "boolean", "default": false }
   },
   "required": ["code"]
 }
