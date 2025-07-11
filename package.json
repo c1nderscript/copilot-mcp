@@ -1,0 +1,21 @@
+{
+  "name": "mcp-github-copilot-server",
+  "version": "0.1.0",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "dev": "nodemon src/server.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "latest",
+    "@octokit/rest": "latest",
+    "zod": "latest",
+    "jsonwebtoken": "latest"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "ts-node": "^10.9.1",
+    "nodemon": "^2.0.22"
+  }
+}
