@@ -26,6 +26,7 @@ This project implements a Model Context Protocol (MCP) server that enables Warp 
    ```bash
    npm run dev
    ```
+   This uses **ts-node** to run `src/server.ts` directly for easier development.
 
 ## Using with Warp
 

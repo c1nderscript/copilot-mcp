@@ -29,6 +29,7 @@ cp config/github-app.example.json config/github-app.json
 # Start the development server
 npm run dev    # or: python src/server.py
 ```
+The `npm run dev` script runs `src/server.ts` with **ts-node** for quick iteration.
 
 The server communicates over stdio by default. When it starts, it registers available tools with Warp.
 
