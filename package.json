@@ -1,0 +1,20 @@
+{
+  "name": "mcp-github-copilot-server",
+  "version": "0.1.0",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^latest",
+    "@octokit/rest": "^latest",
+    "zod": "^latest",
+    "jsonwebtoken": "^latest"
+  },
+  "devDependencies": {
+    "typescript": "^latest",
+    "jest": "^latest",
+    "ts-jest": "^latest"
+  }
+}
