@@ -1,0 +1,5 @@
+{
+  "appId": "YOUR_APP_ID",
+  "privateKey": "PATH_OR_CONTENTS_OF_PRIVATE_KEY",
+  "installationId": "YOUR_INSTALLATION_ID"
+}
