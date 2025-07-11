@@ -1,0 +1,46 @@
+# Node.js dependencies and build artifacts
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+dist/
+build/
+*.tsbuildinfo
+
+# Python bytecode and virtual environments
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+venv/
+.venv/
+env/
+*.egg-info/
+
+# Environment files
+.env
+*.env
+.env.*
+
+# Logs
+logs/
+*.log
+
+# Test and coverage output
+coverage/
+.nyc_output/
+.pytest_cache/
+.mypy_cache/
+.cache/
+*.coverage
+
+# IDE/editor folders
+.vscode/
+.idea/
+
+# Generated configuration files
+config/*.json
+!config/*.example.json
+
+# Misc
+.DS_Store
