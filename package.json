@@ -9,7 +9,11 @@
     "test": "jest"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^latest"
+    "@modelcontextprotocol/sdk": "latest",
+    "@octokit/rest": "latest",
+    "jsonwebtoken": "latest",
+    "zod": "latest",
+    "zod-to-json-schema": "latest"
   },
   "devDependencies": {
     "typescript": "^5.0.0",
