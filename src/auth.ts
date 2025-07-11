@@ -55,7 +55,7 @@ async function createInstallationToken(config: GitHubAppConfig): Promise<{ token
   const res = await appOctokit.rest.apps.createInstallationAccessToken({
     installation_id: Number(config.installationId),
   });
-  return { token: res.data.token, expires_at: res.data.expires_at } as any;
+  return { token: res.data.token, expiresAt: res.data.expires_at };
 }
 
 async function createInstallationTokenWithRetry(config: GitHubAppConfig, retries = 2): Promise<{ token: string; expiresAt: string }> {
