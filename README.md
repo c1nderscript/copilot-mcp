@@ -51,7 +51,7 @@ Contributions are welcome! Please follow the guidelines in `AGENTS.md` regarding
 
 ## Testing
 
-Run the automated test suite with:
+Unit tests are written with **Jest**. Run the suite with:
 ```bash
 npm test
 ```
