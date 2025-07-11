@@ -57,3 +57,7 @@ npm test
 ```
 End-to-end tests with Warp can be executed using `warp_agent_test` as described in the **Testing Strategy** section of `AGENTS.md`. Ensure authentication and configuration are valid before running tests.
 
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
