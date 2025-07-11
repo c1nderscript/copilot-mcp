@@ -1,0 +1,16 @@
+{
+  "name": "copilot-mcp",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^latest"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
