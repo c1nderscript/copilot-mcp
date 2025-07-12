@@ -35,10 +35,78 @@ The server communicates over stdio by default. When it starts, it registers avai
 
 ## Warp Terminal Configuration
 
-In Warp, add this MCP server via **Settings → AI → Manage MCP Servers** and point it to the start command above. Ensure the environment variables for your GitHub App are available when launching the server.
+1. Build the project so Warp can run the compiled server:
+   ```bash
+   npm run build
+   ```
+2. Open Warp and navigate to **Settings → AI → Manage MCP Servers**.
+3. Click **Add Server** and fill in the fields:
+   - **Name:** `github-copilot`
+   - **Command:** `node`
+   - **Arguments:** `dist/server.js`
+   - Provide your GitHub App environment variables (e.g. `GITHUB_APP_ID`).
+   - Enable **Start on Launch** if you want Warp to start the server automatically.
+4. Save the configuration. Warp will launch the server and register the Copilot tools when it starts.
 
 ## Troubleshooting
 
 - Check that your GitHub App credentials are valid and have the required permissions.
 - Verify network connectivity if requests to GitHub Copilot fail.
 - Inspect logs for detailed error messages.
+
+## Production Deployment
+
+The server can run as a long-lived service once it has been compiled with
+`npm run build`.
+
+### systemd
+
+Create `/etc/systemd/system/github-copilot.service` with contents similar to:
+
+```ini
+[Unit]
+Description=GitHub Copilot MCP server
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/node /opt/copilot-mcp/dist/server.js
+WorkingDirectory=/opt/copilot-mcp
+Environment=GITHUB_APP_ID=your_app_id
+Environment=GITHUB_PRIVATE_KEY_PATH=/opt/copilot-mcp/private-key.pem
+Environment=GITHUB_INSTALLATION_ID=your_installation_id
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the service:
+
+```bash
+sudo systemctl enable --now github-copilot.service
+```
+
+Logs can be viewed with `journalctl -u github-copilot.service`.
+
+### Docker
+
+Alternatively build a Docker image and run it with a restart policy:
+
+```Dockerfile
+FROM node:18
+WORKDIR /app
+COPY . .
+RUN npm install && npm run build
+CMD ["node", "dist/server.js"]
+```
+
+```bash
+docker build -t copilot-mcp .
+docker run -d --restart unless-stopped \
+  -e GITHUB_APP_ID=your_app_id \
+  -e GITHUB_PRIVATE_KEY_PATH=/keys/private.pem \
+  -e GITHUB_INSTALLATION_ID=your_installation_id \
+  copilot-mcp
+```
+
+Monitor the container with `docker logs -f <container_id>`.
