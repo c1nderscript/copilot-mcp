@@ -4,8 +4,9 @@ import {
   JSONRPCParams,
   JSONRPCErrorResponse,
   createStdioTransport,
-  ErrorCodes
+  ErrorCodes,
 } from '@modelcontextprotocol/sdk';
+import http from 'http';
 
 interface CapabilityMap {
   copilot_complete: boolean;
@@ -17,10 +18,69 @@ interface CapabilityMap {
 interface InitializeParams {
   version: string;
   capabilities?: CapabilityMap;
+  stream?: boolean;
 }
 
-// Set up stdio transport and JSON-RPC server
-const transport = createStdioTransport(process.stdin, process.stdout);
+// Determine transport mode (stdio or SSE)
+const useSSE =
+  process.argv.includes('--sse') || process.env.MCP_TRANSPORT === 'sse';
+
+function createSSETransport(port = 7070) {
+  const clients = new Set<http.ServerResponse>();
+  const handlers: Array<(req: JSONRPCRequest) => void> = [];
+
+  const httpServer = http.createServer((req, res) => {
+    if (req.method === 'GET' && req.url === '/events') {
+      res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        Connection: 'keep-alive',
+        'Cache-Control': 'no-cache',
+      });
+      clients.add(res);
+      req.on('close', () => {
+        clients.delete(res);
+      });
+      return;
+    }
+
+    if (req.method === 'POST' && req.url === '/rpc') {
+      let body = '';
+      req.on('data', (chunk) => (body += chunk));
+      req.on('end', () => {
+        try {
+          const json = JSON.parse(body);
+          handlers.forEach((h) => h(json));
+          res.writeHead(204);
+          res.end();
+        } catch {
+          res.writeHead(400);
+          res.end();
+        }
+      });
+      return;
+    }
+
+    res.writeHead(404);
+    res.end();
+  });
+
+  httpServer.listen(port);
+
+  return {
+    onMessage(handler: (req: JSONRPCRequest) => void) {
+      handlers.push(handler);
+    },
+    write(message: unknown) {
+      const data = `data: ${JSON.stringify(message)}\n\n`;
+      clients.forEach((c) => c.write(data));
+    },
+  };
+}
+
+const transport = useSSE
+  ? createSSETransport(Number(process.env.PORT) || 7070)
+  : createStdioTransport(process.stdin, process.stdout);
+
 const server = new JSONRPCServer(transport);
 
 /** Structured error helper */
@@ -39,21 +99,30 @@ server.addMethod('initialize', async (params: JSONRPCParams<InitializeParams>) =
 });
 
 /** Stub handler: copilot_complete */
-server.addMethod('copilot_complete', async () => {
+server.addMethod('copilot_complete', async (params: JSONRPCParams<{stream?: boolean}>) => {
+  if (params && (params as any).stream) {
+    transport.write({ jsonrpc: '2.0', method: 'progress', params: 'streaming not implemented' });
+  }
   return toJSONRPCError('copilot_complete not implemented', ErrorCodes.MethodNotFound);
 });
 
 /** Stub handler: copilot_review */
-server.addMethod('copilot_review', async () => {
+server.addMethod('copilot_review', async (params: JSONRPCParams<{stream?: boolean}>) => {
+  if (params && (params as any).stream) {
+    transport.write({ jsonrpc: '2.0', method: 'progress', params: 'streaming not implemented' });
+  }
   return toJSONRPCError('copilot_review not implemented', ErrorCodes.MethodNotFound);
 });
 
 /** Stub handler: copilot_explain */
-server.addMethod('copilot_explain', async () => {
+server.addMethod('copilot_explain', async (params: JSONRPCParams<{stream?: boolean}>) => {
+  if (params && (params as any).stream) {
+    transport.write({ jsonrpc: '2.0', method: 'progress', params: 'streaming not implemented' });
+  }
   return toJSONRPCError('copilot_explain not implemented', ErrorCodes.MethodNotFound);
 });
 
-// Start processing requests from stdio
+// Start processing requests from the selected transport
 server.start().catch((err: unknown) => {
   const errorResponse = toJSONRPCError((err as Error).message);
   transport.write(errorResponse);
