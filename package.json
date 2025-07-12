@@ -15,7 +15,8 @@
     "@octokit/rest": "latest",
     "jsonwebtoken": "latest",
     "zod": "latest",
-    "zod-to-json-schema": "latest"
+    "zod-to-json-schema": "latest",
+    "pino": "latest"
   },
   "devDependencies": {
     "typescript": "^5.0.0",
