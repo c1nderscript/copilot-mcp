@@ -93,3 +93,12 @@ Explains what a piece of code does in plain language.
   "required": ["explanation"]
 }
 ```
+
+## Transport Options
+
+The server supports two transport mechanisms:
+
+1. **stdio** - Default communication over stdin/stdout. Suitable for Warp integration.
+2. **SSE (Server-Sent Events)** - Start the server with the `--sse` flag or set `MCP_TRANSPORT=sse` to enable HTTP-based SSE streaming on port `7070` (configurable with the `PORT` environment variable).
+
+When using SSE, send JSON-RPC requests with `POST /rpc` and listen for responses on `GET /events`. Include `"stream": true` in request parameters to receive progressive updates.
