@@ -18,9 +18,13 @@ cd mcp-github-copilot-server
 # Install dependencies
 npm install    # or: pip install -r requirements.txt
 
-# Copy the example GitHub App config
-cp config/github-app.example.json config/github-app.json
-# Edit config/github-app.json with your App ID, private key, and installation ID
+# Configure your GitHub App credentials via environment variables
+export GITHUB_APP_ID=<your_app_id>
+export GITHUB_INSTALLATION_ID=<your_installation_id>
+export GITHUB_PRIVATE_KEY_PATH=/path/to/private-key.pem
+# or set GITHUB_PRIVATE_KEY with the PEM contents
+# Never commit your private key to version control. Use environment variables or
+# a secure secrets manager to store it locally.
 ```
 
 ## Running the Server
