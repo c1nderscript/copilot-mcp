@@ -8,7 +8,7 @@
     "dev": "ts-node src/server.ts",
     "start": "node dist/server.js",
     "dev": "ts-node src/server.ts",
-    "test": "jest"
+    "test": "jest --coverage"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "latest",
@@ -27,6 +27,15 @@
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "node",
-    "testMatch": ["**/tests/**/*.test.ts"]
+    "testMatch": ["**/tests/**/*.test.ts"],
+    "collectCoverage": true,
+    "coverageThreshold": {
+      "global": {
+        "branches": 80,
+        "functions": 80,
+        "lines": 80,
+        "statements": 80
+      }
+    }
   }
 }
