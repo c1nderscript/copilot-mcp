@@ -7,8 +7,7 @@
     "build": "tsc",
     "dev": "ts-node src/server.ts",
     "start": "node dist/server.js",
-    "dev": "ts-node src/server.ts",
-    "test": "jest --coverage"
+    "test": "jest"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "latest",
