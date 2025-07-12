@@ -1,11 +1,17 @@
 import {
   JSONRPCServer,
-  JSONRPCRequest,
   JSONRPCParams,
   JSONRPCErrorResponse,
   createStdioTransport,
   ErrorCodes
 } from '@modelcontextprotocol/sdk';
+import { Octokit } from '@octokit/rest';
+import {
+  copilotCompleteSchema,
+  copilotReviewSchema,
+  copilotExplainSchema
+} from './schemas';
+import { getInstallationToken, refreshGitHubAuth } from './auth';
 
 interface CapabilityMap {
   copilot_complete: boolean;
@@ -38,19 +44,68 @@ server.addMethod('initialize', async (params: JSONRPCParams<InitializeParams>) =
   return { version: '0.1.0', capabilities };
 });
 
-/** Stub handler: copilot_complete */
-server.addMethod('copilot_complete', async () => {
-  return toJSONRPCError('copilot_complete not implemented', ErrorCodes.MethodNotFound);
+/** Handler: copilot_complete */
+server.addMethod('copilot_complete', async (params: JSONRPCParams) => {
+  const parsed = copilotCompleteSchema.safeParse(params);
+  if (!parsed.success) {
+    return toJSONRPCError(parsed.error.message, ErrorCodes.InvalidParams);
+  }
+  const input = parsed.data;
+  try {
+    const token = await getInstallationToken();
+    const octokit = new Octokit({ auth: token });
+    const res = await octokit.request('POST /copilot/completions', {
+      code: input.code,
+      language: input.language,
+      cursor_position: input.cursor_position,
+      max_completions: input.max_completions,
+    });
+    const completion = (res.data as any).completion || (res.data as any).choices?.[0]?.text;
+    return { completion };
+  } catch (err: any) {
+    if (err.status === 401) {
+      await refreshGitHubAuth();
+    }
+    return toJSONRPCError(err.message || 'Copilot completion failed');
+  }
 });
 
-/** Stub handler: copilot_review */
-server.addMethod('copilot_review', async () => {
-  return toJSONRPCError('copilot_review not implemented', ErrorCodes.MethodNotFound);
+/** Handler: copilot_review */
+server.addMethod('copilot_review', async (params: JSONRPCParams) => {
+  const parsed = copilotReviewSchema.safeParse(params);
+  if (!parsed.success) {
+    return toJSONRPCError(parsed.error.message, ErrorCodes.InvalidParams);
+  }
+  try {
+    const token = await getInstallationToken();
+    const octokit = new Octokit({ auth: token });
+    const res = await octokit.request('POST /copilot/review', parsed.data);
+    return { comments: (res.data as any).comments || [] };
+  } catch (err: any) {
+    if (err.status === 401) {
+      await refreshGitHubAuth();
+    }
+    return toJSONRPCError(err.message || 'Copilot review failed');
+  }
 });
 
-/** Stub handler: copilot_explain */
-server.addMethod('copilot_explain', async () => {
-  return toJSONRPCError('copilot_explain not implemented', ErrorCodes.MethodNotFound);
+/** Handler: copilot_explain */
+server.addMethod('copilot_explain', async (params: JSONRPCParams) => {
+  const parsed = copilotExplainSchema.safeParse(params);
+  if (!parsed.success) {
+    return toJSONRPCError(parsed.error.message, ErrorCodes.InvalidParams);
+  }
+  try {
+    const token = await getInstallationToken();
+    const octokit = new Octokit({ auth: token });
+    const res = await octokit.request('POST /copilot/explain', parsed.data);
+    return { explanation: (res.data as any).explanation || '' };
+  } catch (err: any) {
+    if (err.status === 401) {
+      await refreshGitHubAuth();
+    }
+    return toJSONRPCError(err.message || 'Copilot explanation failed');
+  }
 });
 
 // Start processing requests from stdio
