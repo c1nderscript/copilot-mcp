@@ -16,12 +16,14 @@ This project implements a Model Context Protocol (MCP) server that enables Warp 
    cd copilot-mcp
    npm install
    ```
-2. Configure your GitHub App credentials:
+2. Configure your GitHub App credentials using environment variables:
    ```bash
-   cp config/github-app.example.json config/github-app.json
-   # Edit config/github-app.json with your GITHUB_APP_ID, private key path and installation ID
+   export GITHUB_APP_ID=<your_app_id>
+   export GITHUB_INSTALLATION_ID=<your_installation_id>
+   export GITHUB_PRIVATE_KEY_PATH=/path/to/private-key.pem
+   # or set GITHUB_PRIVATE_KEY with the PEM contents
    ```
-   See the **Authentication** and **Configuration** specs in `AGENTS.md` for details on generating a JWT and creating installation tokens.
+   You may still provide `config/github-app.json` for `appId` and `installationId`, but **never** commit your private key. See the **Authentication** and **Configuration** specs in `AGENTS.md` for details on generating a JWT and creating installation tokens.
 3. Start the development server:
    ```bash
    npm run dev

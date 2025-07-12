@@ -14,19 +14,23 @@ let tokenExpiresAt = 0;
 
 async function readConfig(): Promise<GitHubAppConfig> {
   const envAppId = process.env.GITHUB_APP_ID;
-  let envPrivateKey = process.env.GITHUB_PRIVATE_KEY;
-  const envPrivateKeyPath = process.env.GITHUB_PRIVATE_KEY_PATH;
   const envInstallationId = process.env.GITHUB_INSTALLATION_ID;
+  let privateKey = process.env.GITHUB_PRIVATE_KEY;
+  const privateKeyPath = process.env.GITHUB_PRIVATE_KEY_PATH;
 
-  if (!envPrivateKey && envPrivateKeyPath) {
-    envPrivateKey = await fs.readFile(envPrivateKeyPath, 'utf8');
+  if (!privateKey && privateKeyPath) {
+    privateKey = await fs.readFile(privateKeyPath, 'utf8');
   }
 
-  if (envAppId && envPrivateKey) {
+  if (!privateKey) {
+    throw new Error('GitHub private key must be provided via GITHUB_PRIVATE_KEY or GITHUB_PRIVATE_KEY_PATH');
+  }
+
+  if (envAppId && envInstallationId) {
     return {
       appId: envAppId,
-      privateKey: envPrivateKey,
       installationId: envInstallationId,
+      privateKey,
     };
   }
 
@@ -34,9 +38,9 @@ async function readConfig(): Promise<GitHubAppConfig> {
   const raw = await fs.readFile(filePath, 'utf8');
   const data = JSON.parse(raw);
   return {
-    appId: data.appId,
-    privateKey: data.privateKey,
-    installationId: data.installationId,
+    appId: envAppId ?? data.appId,
+    installationId: envInstallationId ?? data.installationId,
+    privateKey,
   };
 }
 

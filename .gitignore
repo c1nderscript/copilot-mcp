@@ -25,6 +25,7 @@ logs/
 config/*.local.json
 config/*.dev.json
 config/*.generated.json
+config/github-app.json
 
 # Logs
 npm-debug.log*
