@@ -30,21 +30,61 @@ This project implements a Model Context Protocol (MCP) server that enables Warp 
 
 ## Using with Warp
 
-Add the server to Warp's MCP configuration. A minimal entry looks like:
-```json
-{
-  "name": "github-copilot",
-  "command": "node",
-  "args": ["dist/server.js"],
-  "env": {
-    "GITHUB_APP_ID": "your_app_id",
-    "GITHUB_PRIVATE_KEY_PATH": "/path/to/private-key.pem",
-    "GITHUB_INSTALLATION_ID": "your_installation_id"
-  },
-  "start_on_launch": true
-}
+1. Build the server so Warp can launch the compiled code:
+   ```bash
+   npm run build
+   ```
+2. In Warp open **Settings → AI → Manage MCP Servers** and click **Add Server**.
+3. Fill in the configuration as shown below and save it:
+   ```json
+   {
+     "name": "github-copilot",
+     "command": "node",
+     "args": ["dist/server.js"],
+     "env": {
+       "GITHUB_APP_ID": "your_app_id",
+       "GITHUB_PRIVATE_KEY_PATH": "/path/to/private-key.pem",
+       "GITHUB_INSTALLATION_ID": "your_installation_id"
+     },
+     "start_on_launch": true
+   }
+   ```
+Warp will launch the server and Copilot completions will be available for supported commands.
+
+## Production Deployment
+
+For long-running use you can manage the compiled server with **systemd** or **Docker**.
+
+### systemd
+
+Create `/etc/systemd/system/github-copilot.service` and enable it:
+
+```ini
+[Service]
+ExecStart=/usr/bin/node /opt/copilot-mcp/dist/server.js
+WorkingDirectory=/opt/copilot-mcp
+Environment=GITHUB_APP_ID=your_app_id
+Environment=GITHUB_PRIVATE_KEY_PATH=/opt/copilot-mcp/private-key.pem
+Environment=GITHUB_INSTALLATION_ID=your_installation_id
+Restart=on-failure
 ```
-Launch Warp and the server will provide Copilot completions for supported commands.
+
+```bash
+sudo systemctl enable --now github-copilot.service
+```
+
+### Docker
+
+```bash
+docker build -t copilot-mcp .
+docker run -d --restart unless-stopped \
+  -e GITHUB_APP_ID=your_app_id \
+  -e GITHUB_PRIVATE_KEY_PATH=/keys/private.pem \
+  -e GITHUB_INSTALLATION_ID=your_installation_id \
+  copilot-mcp
+```
+
+Monitor the process using `journalctl` or `docker logs`.
 
 ## Contributing
 
